@@ -1,0 +1,1 @@
+web: gunicorn grindery_ping_connector.wsgi

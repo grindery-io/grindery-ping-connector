@@ -1,0 +1,10 @@
+Django==3.1.5
+incremental==17.5.0
+django-cors-headers==3.3.0
+gunicorn==20.0.4
+django-heroku
+djangorestframework
+firebase-admin
+django-cors-headers==3.3.0
+daphne
+gunicorn
