@@ -18,9 +18,14 @@ class FCMMessagerView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        title = serializer.data.get('title')
-        body = serializer.data.get('body')
-        tokens = serializer.data.get('tokens')
+        params = serializer.data.get('params')
+        method = serializer.data.get('method')
+        request_id = serializer.data.get('id')
+        key = params['key']
+
+        title = params['fieldData']['title']
+        body = params['fieldData']['body']
+        tokens = params['fieldData']['tokens']
 
         message = messaging.MulticastMessage(
             notification=messaging.Notification(
@@ -29,15 +34,21 @@ class FCMMessagerView(GenericAPIView):
             ),
             tokens=tokens
         )
-        responses = messaging.send_multicast(message)
-        for response in responses.responses:
-            print(response)
-        print('11111111111111111111')
-        print(responses.success_count)
+        messaging.send_multicast(message)
 
         return Response(
             {
-                True
+                "jsonrpc": "2.0",
+                "method": method,
+                "id": request_id,
+                "params": {
+                    "key": key,
+                    "fieldData": {
+                        "title": title,
+                        "body": body,
+                        "tokens": tokens
+                    }
+                }
             },
             status=status.HTTP_201_CREATED
         )

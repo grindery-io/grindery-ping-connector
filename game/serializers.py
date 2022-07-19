@@ -3,21 +3,47 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from common.exception import CustomException
 
-class ConnectorSerializer(serializers.Serializer):
+
+class FieldDataSerializer(serializers.Serializer):
     title = serializers.CharField(required=False, allow_blank=True)
     body = serializers.CharField(required=False, allow_blank=True)
     tokens = serializers.ListField(required=True)
-
-    default_error_messages = {
-        'empty_tokens': _('Token is empty.'),
-    }
 
     class Meta:
         fields = ("title", "body", "tokens")
 
     def validate(self, attrs):
-        tokens = attrs.get("tokens")
+        return attrs
 
-        if not tokens:
-            raise CustomException(code=10, message=self.error_messages['empty_tokens'])
+
+class ParamSerializer(serializers.Serializer):
+    key = serializers.CharField(required=False)
+    fieldData = FieldDataSerializer()
+
+    class Meta:
+        fields = ("key", "fieldData", "credentials")
+
+    def validate(self, attrs):
+        key = attrs.get("key")
+        fieldData = attrs.get("fieldData")
+        credentials = attrs.get("credentials")
+        # attrs['key'] = key
+        # attrs['fieldData'] = fieldData
+        # attrs['credentials'] = credentials
+        return attrs
+
+
+class ConnectorSerializer(serializers.Serializer):
+    method = serializers.CharField()
+    id = serializers.CharField()
+    params = ParamSerializer()
+
+    default_error_messages = {
+        'invalid_type': _('type is invalid.'),
+    }
+
+    class Meta:
+        fields = ("params", "method", "id")
+
+    def validate(self, attrs):
         return attrs
