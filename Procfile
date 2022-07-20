@@ -1,1 +1,1 @@
-web: gunicorn grindery_ping_connector.wsgi
+web: daphne grindery_ping_connector.asgi:application --port $PORT --bind 0.0.0.0 -v2
