@@ -56,6 +56,8 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
             await self.send_json(response)
 
         if method == 'runAction':
+            success = True
+            error_message = ''
 
             message = messaging.MulticastMessage(
                 notification=messaging.Notification(
@@ -64,14 +66,30 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
                 ),
                 tokens=tokens
             )
-            messaging.send_multicast(message)
-            run_action_response = {
-                'jsonrpc': '2.0',
-                'result': {
-                    'key': key,
-                    'sessionId': session_id,
-                    'payload': fields
-                },
-                'id': id
-            }
+            responses = messaging.send_multicast(message)
+            for response in responses.responses:
+                if response.success is False:
+                    success = False
+                    error_message = response.exception
+                    print('---error-log---', error_message)
+
+            if success:
+                run_action_response = {
+                    'jsonrpc': '2.0',
+                    'result': {
+                        'key': key,
+                        'sessionId': session_id,
+                        'payload': fields
+                    },
+                    'id': id
+                }
+            else:
+                run_action_response = {
+                    'jsonrpc': '2.0',
+                    'error': {
+                        'code': 1,
+                        'message': error_message
+                    },
+                    'id': id
+                }
             await self.send_json(run_action_response)
