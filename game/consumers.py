@@ -32,6 +32,7 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
         title = ''
         body = ''
         tokens = []
+        data = {}
         fields = ''
         session_id = ''
         key = ''
@@ -46,6 +47,7 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
                 title = fields['title']
                 body = fields['body']
                 tokens = fields['tokens']
+                data = fields['tokens']
 
         if method == 'ping':
             response = {
@@ -64,7 +66,8 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
                     title=title,
                     body=body
                 ),
-                tokens=tokens
+                tokens=tokens,
+                data={data}
             )
             responses = messaging.send_multicast(message)
             for response in responses.responses:
