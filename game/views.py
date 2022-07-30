@@ -8,7 +8,7 @@ from firebase_admin import credentials, messaging
 from .serializers import ConnectorSerializer
 
 firebase_cred = credentials.Certificate('credentials.json')
-firebase_app = firebase_admin.initialize_app(firebase_cred)
+# firebase_app = firebase_admin.initialize_app(firebase_cred)
 
 
 class FCMMessagerView(GenericAPIView):

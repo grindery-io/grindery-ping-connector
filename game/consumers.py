@@ -32,7 +32,7 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
         title = ''
         body = ''
         tokens = []
-        data = {}
+        data = ''
         fields = ''
         session_id = ''
         key = ''
@@ -62,14 +62,23 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
             success = True
             error_message = ''
 
-            message = messaging.MulticastMessage(
-                notification=messaging.Notification(
-                    title=title,
-                    body=body
-                ),
-                tokens=tokens,
-                data=data
-            )
+            if data is '':
+                message = messaging.MulticastMessage(
+                    notification=messaging.Notification(
+                        title=title,
+                        body=body
+                    ),
+                    tokens=tokens
+                )
+            else:
+                message = messaging.MulticastMessage(
+                    notification=messaging.Notification(
+                        title=title,
+                        body=body
+                    ),
+                    tokens=tokens,
+                    data=data
+                )
             responses = messaging.send_multicast(message)
             for response in responses.responses:
                 if response.success is False:
