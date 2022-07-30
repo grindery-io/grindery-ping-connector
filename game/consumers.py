@@ -48,7 +48,7 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
                 body = fields['body']
                 tokens = fields['tokens']
                 if 'data' in fields:
-                    data = fields['data']
+                    data = json.loads(fields['data'])
 
         if method == 'ping':
             response = {
