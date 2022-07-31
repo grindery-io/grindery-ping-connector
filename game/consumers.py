@@ -48,7 +48,8 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
                 body = fields['body']
                 tokens = fields['tokens']
                 if 'data' in fields:
-                    data = json.loads(fields['data'])
+                    if fields['data'] != {} and fields['data'] != '':
+                        data = json.loads(fields['data'])
 
         if method == 'ping':
             response = {
@@ -62,7 +63,7 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
             success = True
             error_message = ''
 
-            if data is '':
+            if data == '':
                 message = messaging.MulticastMessage(
                     notification=messaging.Notification(
                         title=title,
