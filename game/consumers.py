@@ -32,10 +32,11 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
         title = ''
         body = ''
         tokens = []
-        data = ''
+        data = {}
         fields = ''
         session_id = ''
         key = ''
+        icon = ''
 
         if params:
             if 'key' in params:
@@ -50,6 +51,9 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
                 if 'data' in fields:
                     if fields['data'] != {} and fields['data'] != '':
                         data = json.loads(fields['data'])
+                if 'icon' in fields:
+                    if fields['icon'] != '':
+                        icon = fields['icon']
 
         if method == 'ping':
             response = {
@@ -63,23 +67,15 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
             success = True
             error_message = ''
 
-            if data == '':
-                message = messaging.MulticastMessage(
-                    notification=messaging.Notification(
-                        title=title,
-                        body=body
-                    ),
-                    tokens=tokens
-                )
+            if icon == '':
+                data.update({'title': title, 'body': body})
             else:
-                message = messaging.MulticastMessage(
-                    notification=messaging.Notification(
-                        title=title,
-                        body=body
-                    ),
-                    tokens=tokens,
-                    data=data
-                )
+                data.update({'title': title, 'body': body, 'icon': icon})
+            message = messaging.MulticastMessage(
+                tokens=tokens,
+                data=data
+            )
+            print('-------fields---------', fields)
             responses = messaging.send_multicast(message)
             for response in responses.responses:
                 if response.success is False:
