@@ -80,7 +80,7 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
             for response in responses.responses:
                 if response.success is False:
                     success = False
-                    error_message = response.exception
+                    error_message = str(response.exception)
                     print('---error-log---', error_message)
 
             if success:
