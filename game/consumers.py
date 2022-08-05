@@ -37,6 +37,7 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
         session_id = ''
         key = ''
         icon = ''
+        topic = ''
 
         if params:
             if 'key' in params:
@@ -45,9 +46,12 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
                 session_id = params['sessionId']
             if 'fields' in params:
                 fields = params['fields']
-                title = fields['title']
+                if 'title' in fields:
+                    title = fields['title']
                 body = fields['body']
                 tokens = fields['tokens']
+                if 'topic' in fields:
+                    topic = fields['topic'].replace(' ', '_')
                 if 'data' in fields:
                     if fields['data'] != {} and fields['data'] != '':
                         data = json.loads(fields['data'])
@@ -66,22 +70,40 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
         if method == 'runAction':
             success = True
             error_message = ''
-
             if icon == '':
                 data.update({'title': title, 'body': body})
             else:
                 data.update({'title': title, 'body': body, 'icon': icon})
-            message = messaging.MulticastMessage(
-                tokens=tokens,
-                data=data
-            )
-            print('-------fields---------', fields)
-            responses = messaging.send_multicast(message)
-            for response in responses.responses:
-                if response.success is False:
-                    success = False
-                    error_message = str(response.exception)
-                    print('---error-log---', error_message)
+
+            if key == 'fcmPushNotification':
+                message = messaging.MulticastMessage(
+                    tokens=tokens,
+                    data=data
+                )
+                print('-------fields---------', fields)
+                responses = messaging.send_multicast(message)
+                for response in responses.responses:
+                    if response.success is False:
+                        success = False
+                        error_message = str(response.exception)
+                        print('---error-log---', error_message)
+
+            elif key == 'subscribeDeviceToTopic':
+                subscribe_response = messaging.subscribe_to_topic(tokens, topic)
+                # print('------', subscribe_response.errors)
+                print(subscribe_response.success_count, '-----tokens were subscribed successfully-------')
+
+            elif key == 'unsubscribeDeviceFromTopic':
+                unsubscribe_response = messaging.unsubscribe_from_topic(tokens, topic)
+                print(unsubscribe_response.success_count, '-----tokens were unsubscribed successfully-------')
+
+            elif key == 'sendMessageToDevices':
+                topic_message = messaging.Message(
+                    data=data,
+                    topic=topic,
+                )
+                topic_response = messaging.send(topic_message)
+                print('-----------Successfully sent message----------:', topic_response)
 
             if success:
                 run_action_response = {
