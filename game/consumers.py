@@ -61,8 +61,10 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
                 fields = params['fields']
                 if 'title' in fields:
                     title = fields['title']
-                body = fields['body']
-                tokens = fields['tokens']
+                if 'body' in fields:
+                    body = fields['body']
+                if 'tokens' in fields:
+                    tokens = fields['tokens']
                 if 'topic' in fields:
                     topic = fields['topic'].replace(' ', '_')
                 if 'data' in fields:
