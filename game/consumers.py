@@ -69,7 +69,18 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
                     topic = fields['topic'].replace(' ', '_')
                 if 'data' in fields:
                     if fields['data'] != {} and fields['data'] != '':
-                        data = json.loads(fields['data'])
+                        try:
+                            data = json.loads(fields['data'])
+                        except:
+                            parse_response = {
+                                'jsonrpc': '2.0',
+                                'error': {
+                                    'code': 1,
+                                    'message': 'Data filed should be JSON format'
+                                },
+                                'id': id
+                            }
+                            await self.send_json(parse_response)
                 if 'icon' in fields:
                     if fields['icon'] != '':
                         icon = fields['icon']
